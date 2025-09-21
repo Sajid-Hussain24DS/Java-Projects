@@ -17,28 +17,17 @@ public class Purchase extends javax.swing.JFrame {
 
     public Purchase() {
         initComponents();
-        loadProducts();
+   loadProducts();
     loadVendors();
     setupTable();
- 
+
     purchaseCodeField.setText(generatePurchaseCode());
     dateField.setText(getCurrentDate());
     grandTotalField.setText("0.00");
 
-    // when product selected, auto-fill price
-    productBox.addActionListener(e -> {
-        Object sel = productBox.getSelectedItem();
-        if (sel != null) {
-            String selStr = sel.toString();
-            // expecting "id - name"
-            String[] parts = selStr.split(" - ", 2);
-            if (parts.length == 2) {
-                String name = parts[1];
-                double price = getProductPriceByName(name);
-                purchasePriceField.setText(String.valueOf(price));
-            }
-        }
-    });
+    // Remove auto-fill logic for price
+    purchasePriceField.setEditable(true); // User can manually enter price
+
     }
     private void loadProducts() {
     try (Connection conn = DBConnection.getConnection();
@@ -167,6 +156,7 @@ private void completePurchase() {
         addButton = new javax.swing.JButton();
         updateButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
+        backButton = new javax.swing.JButton();
         jDesktopPane3 = new javax.swing.JDesktopPane();
         purchaseNowButton = new javax.swing.JButton();
         newPurchaseButton = new javax.swing.JButton();
@@ -223,9 +213,17 @@ private void completePurchase() {
             }
         });
 
+        backButton.setText("Back");
+        backButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backButtonActionPerformed(evt);
+            }
+        });
+
         jDesktopPane2.setLayer(addButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane2.setLayer(updateButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane2.setLayer(deleteButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jDesktopPane2.setLayer(backButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jDesktopPane2Layout = new javax.swing.GroupLayout(jDesktopPane2);
         jDesktopPane2.setLayout(jDesktopPane2Layout);
@@ -236,7 +234,8 @@ private void completePurchase() {
                 .addGroup(jDesktopPane2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(updateButton)
                     .addComponent(addButton)
-                    .addComponent(deleteButton))
+                    .addComponent(deleteButton)
+                    .addComponent(backButton))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
         jDesktopPane2Layout.setVerticalGroup(
@@ -248,7 +247,9 @@ private void completePurchase() {
                 .addComponent(updateButton)
                 .addGap(18, 18, 18)
                 .addComponent(deleteButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(backButton)
+                .addContainerGap())
         );
 
         jDesktopPane3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 3));
@@ -670,14 +671,19 @@ private void clearForm() {
 
     }//GEN-LAST:event_purchaseItemTableMouseClicked
 
+    private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
+    this.dispose();
+    DashBoard dashBoard = new DashBoard();
+    dashBoard.setVisible(true);
+    dashBoard.setLocationRelativeTo(null);
+    }//GEN-LAST:event_backButtonActionPerformed
+
      
-    public static void main(String args[]) {
-        
-        java.awt.EventQueue.invokeLater(() -> new Purchase().setVisible(true));
-    }
+     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
+    private javax.swing.JButton backButton;
     private javax.swing.JButton cancelPurchaseButton;
     private javax.swing.JTextField dateField;
     private javax.swing.JButton deleteButton;

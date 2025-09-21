@@ -14,6 +14,7 @@ F:\Java-Projects\Electronic_Store\src\main\java\model\Product.java
 F:\Java-Projects\Electronic_Store\src\main\java\frames\Category.java
 F:\Java-Projects\Electronic_Store\src\main\java\dao\CategoryDao.java
 F:\Java-Projects\Electronic_Store\src\main\java\frames\Purchase.java
+F:\Java-Projects\Electronic_Store\src\main\java\frames\PurchaseDetail.java
 F:\Java-Projects\Electronic_Store\src\main\java\dao\PurchaseDao.java
 F:\Java-Projects\Electronic_Store\src\main\java\serviceImpl\OrderDetailServiceImpl.java
 F:\Java-Projects\Electronic_Store\src\main\java\daoImpl\PurchaseDetailDaoImpl.java

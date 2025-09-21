@@ -77,19 +77,34 @@ private void loadAccountTable() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("Bank");
+        jLabel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 0, true));
 
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setText("Account Number");
+        jLabel2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 0, true));
 
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setText("Total Balance");
+        jLabel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 0, true));
 
+        bankField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 3, true));
+
+        accountNumberField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 3, true));
+
+        balanceField.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 3, true));
+
+        addButton.setFont(new java.awt.Font("Segoe UI Historic", 1, 18)); // NOI18N
         addButton.setText("ADD");
+        addButton.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addButtonActionPerformed(evt);
             }
         });
 
+        updateButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         updateButton.setText("UPDATE");
         updateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -97,6 +112,7 @@ private void loadAccountTable() {
             }
         });
 
+        backButton.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         backButton.setText("BACK");
         backButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -104,6 +120,7 @@ private void loadAccountTable() {
             }
         });
 
+        deleteButton.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         deleteButton.setText("DELETE");
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -148,9 +165,9 @@ private void loadAccountTable() {
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(updateButton)))
                         .addGap(77, 77, 77)
-                        .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(addButton, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(backButton, javax.swing.GroupLayout.Alignment.TRAILING))))
+                        .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(backButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGap(28, 28, 28))
         );
         jDesktopPane1Layout.setVerticalGroup(
@@ -179,6 +196,7 @@ private void loadAccountTable() {
                 .addContainerGap(87, Short.MAX_VALUE))
         );
 
+        accountTable.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
         accountTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -203,7 +221,7 @@ private void loadAccountTable() {
                 .addComponent(jDesktopPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -212,7 +230,7 @@ private void loadAccountTable() {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jDesktopPane1)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap(156, Short.MAX_VALUE))
+                .addContainerGap(146, Short.MAX_VALUE))
         );
 
         pack();

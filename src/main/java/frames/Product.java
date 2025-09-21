@@ -415,8 +415,7 @@ private void loadCategories() {
     try {
         int price = Integer.parseInt(priceText);
         int quantity = Integer.parseInt(quantityText);
-
-        // Get product id from table's first column
+ 
         int productId = Integer.parseInt(productTable.getValueAt(selectedRow, 0).toString());
 
         // Get category_id from category table
@@ -451,7 +450,7 @@ private void loadCategories() {
         if (rows > 0) {
             JOptionPane.showMessageDialog(this, "Product updated successfully!");
             loadProducts();
-            clearFormFields();// apna table reload karne wala method call karo
+            clearFormFields(); 
         } else {
             JOptionPane.showMessageDialog(this, "Update failed!", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -467,37 +466,40 @@ private void loadCategories() {
     }//GEN-LAST:event_updateButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-                                                 
-    int selectedRow = productTable.getSelectedRow(); // table ka selected row check karein
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a product to delete!");
-        return;
-    }
+     int selectedRow = productTable.getSelectedRow();
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(this, "Please select a product to delete!");
+    return;
+}
 
-    // table se product ka ID nikalo (maan lo p_id first column me hai)
-    int productId = (int) productTable.getValueAt(selectedRow, 0);
+int productId = Integer.parseInt(productTable.getValueAt(selectedRow, 0).toString());
 
-    int confirm = JOptionPane.showConfirmDialog(this, 
-            "Are you sure you want to delete this product?", 
-            "Confirm Delete", JOptionPane.YES_NO_OPTION);
+// Pehle check karo
+if (!canDeleteProduct(productId)) return;
 
-    if (confirm == JOptionPane.YES_OPTION) {
-        try (Connection conn = DBConnection.getConnection()) {
-            String sql = "DELETE FROM products WHERE p_id = ?";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, productId);
+// Ab safe to delete
+int confirm = JOptionPane.showConfirmDialog(this, 
+        "Are you sure you want to delete this product?", 
+        "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
-            int rows = ps.executeUpdate();
-            if (rows > 0) {
-                JOptionPane.showMessageDialog(this, "Product deleted successfully!");
-                loadProducts();
-                clearFormFields();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error deleting product: " + e.getMessage());
+if (confirm == JOptionPane.YES_OPTION) {
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement("DELETE FROM products WHERE p_id = ?")) {
+        
+        ps.setInt(1, productId);
+        int rows = ps.executeUpdate();
+        if (rows > 0) {
+            JOptionPane.showMessageDialog(this, "Product deleted successfully!");
+            loadProducts();      // Table refresh
+            clearFormFields();   // Form fields clear
         }
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error deleting product: " + e.getMessage());
     }
+}
+
     }
 private void clearFormFields() {
     nameField.setText("");
@@ -536,4 +538,28 @@ private void clearFormFields() {
     private javax.swing.JTextField quantityField;
     private javax.swing.JButton updateButton;
     // End of variables declaration//GEN-END:variables
+
+    private boolean canDeleteProduct(int productId) {
+    String checkSQL = "SELECT COUNT(*) FROM order_details WHERE product_id = ?";
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(checkSQL)) {
+        
+        ps.setInt(1, productId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                if (count > 0) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Cannot delete. Product is part of existing orders.");
+                    return false; // Product delete nahi hoga
+                }
+            }
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error checking product usage: " + e.getMessage());
+        return false;
+    }
+    return true; // Safe to delete
+}
+
 }

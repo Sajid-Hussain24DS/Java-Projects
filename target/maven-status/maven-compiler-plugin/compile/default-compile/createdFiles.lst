@@ -1,4 +1,5 @@
 dao\ProductDao.class
+frames\Orders$12.class
 frames\Orders$1.class
 service\PurchaseService.class
 frames\DashBoard$3.class
@@ -12,10 +13,12 @@ frames\Account$4.class
 frames\Orders$4.class
 daoImpl\CartDaoImpl.class
 daoImpl\UserDaoImpl.class
+frames\DashBoard$6.class
 dao\CategoryDao.class
 dao\OrderDetailDao.class
 frames\Account$1.class
 model\User.class
+frames\PurchaseDetail$1.class
 serviceImpl\ProductServiceImpl.class
 frames\Account.class
 serviceImpl\UserServiceImpl.class
@@ -26,9 +29,11 @@ frames\Category$3.class
 frames\LoginFrame$2.class
 frames\PaymentForm.class
 frames\Product$3.class
+frames\PurchaseDetail$2.class
 model\Cart.class
 serviceImpl\PurchaseServiceImpl.class
 frames\Account$3.class
+frames\DashBoard$8.class
 daoImpl\VendorDaoImpl.class
 serviceImpl\CartServiceImpl.class
 frames\DashBoard$1.class
@@ -39,6 +44,7 @@ dao\CartDao.class
 frames\Orders$10.class
 frames\Category$2.class
 model\Account.class
+frames\Purchase$9.class
 dao\PurchaseDao.class
 frames\Category$1.class
 frames\Product.class
@@ -46,12 +52,14 @@ daoImpl\OrderDaoImpl.class
 frames\PaymentForm$1.class
 serviceImpl\OrderDetailServiceImpl.class
 frames\Category.class
+frames\PurchaseDetail.class
 service\CartService.class
 frames\Orders$7.class
 dao\VendorDao.class
 daoImpl\CategoryDaoImpl.class
 frames\Purchase$2.class
 daoImpl\OrderDetailDaoImpl.class
+frames\DashBoard$7.class
 frames\Purchase$8.class
 frames\Account$2.class
 frames\Product$2.class
@@ -72,6 +80,7 @@ model\Purchase.class
 model\Category.class
 frames\DashBoard$2.class
 serviceImpl\VendorServiceImpl.class
+frames\Orders$11.class
 frames\Orders$5.class
 daoImpl\ProductDaoImpl.class
 model\OrderDetail.class

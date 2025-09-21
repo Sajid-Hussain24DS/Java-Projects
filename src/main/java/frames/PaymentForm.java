@@ -5,12 +5,13 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import util.DBConnection;
 import javax.swing.JFrame;
 
 public class PaymentForm extends javax.swing.JFrame {
- private int refId;              // orderId ya purchaseId
+ private int acc_Id;              // orderId ya purchaseId
     private BigDecimal totalAmount; // amount to pay
     private String type;            // "ORDER" ya "PURCHASE"
     private JFrame parent;          // Orders ya Purchase form
@@ -18,9 +19,9 @@ public class PaymentForm extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PaymentForm.class.getName());
   
 
-public PaymentForm(int refId, BigDecimal totalAmount, String type, JFrame parent) {
+public PaymentForm(int acc_Id, BigDecimal totalAmount, String type, JFrame parent) {
     initComponents();
-     this.refId = refId;
+     this.acc_Id = acc_Id;
         this.totalAmount = totalAmount;
         this.type = type;
         this.parent = parent;
@@ -97,39 +98,74 @@ public PaymentForm(int refId, BigDecimal totalAmount, String type, JFrame parent
     }// </editor-fold>//GEN-END:initComponents
 
     private void payButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_payButtonActionPerformed
-      
-  try (Connection conn = DBConnection.getConnection()) {
-            String selected = (String) accountBox.getSelectedItem();
-            if (selected == null) {
-                JOptionPane.showMessageDialog(this, "Please select an account.");
-                return;
+                                
+    if (accountBox.getSelectedIndex() == 0) {
+        JOptionPane.showMessageDialog(this, "Please select an account");
+        return;
+    }
+
+    // Parse selected account ID
+    String selectedAccount = accountBox.getSelectedItem().toString();
+    int selectedAccId;
+    try {
+        selectedAccId = Integer.parseInt(selectedAccount.split(" - ")[0].trim());
+    } catch (NumberFormatException nfe) {
+        JOptionPane.showMessageDialog(this, "Invalid account selected");
+        return;
+    }
+
+    try (Connection conn = DBConnection.getConnection()) {
+        conn.setAutoCommit(false); // Start transaction
+
+        // 1. Verify account exists and sufficient balance
+        String balanceSQL = "SELECT total_balance FROM accounts WHERE acc_id = ? FOR UPDATE";
+        BigDecimal currentBalance;
+        try (PreparedStatement balanceStmt = conn.prepareStatement(balanceSQL)) {
+            balanceStmt.setInt(1, selectedAccId);
+            try (ResultSet rs = balanceStmt.executeQuery()) {
+                if (rs.next()) {
+                    currentBalance = rs.getBigDecimal("total_balance");
+                    if (currentBalance.compareTo(totalAmount) < 0) {
+                        JOptionPane.showMessageDialog(this, "Insufficient funds in account");
+                        return; // Stop payment
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Account not found");
+                    return; // Stop payment
+                }
             }
-
-            int accId = Integer.parseInt(selected.split(" - ")[0]);
-
-            String sql;
-            if ("ORDER".equalsIgnoreCase(type)) {
-                sql = "INSERT INTO payments(order_id, acc_id, amount) VALUES (?, ?, ?)";
-            } else {
-                sql = "INSERT INTO payments(purchase_id, acc_id, amount) VALUES (?, ?, ?)";
-            }
-
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, refId);
-            ps.setInt(2, accId);
-            ps.setBigDecimal(3, totalAmount);
-            ps.executeUpdate();
-            ps.close();
-
-            JOptionPane.showMessageDialog(this, "Payment Successful!");
-
-            // Parent form ko wapas show karo
-            this.dispose();
-            parent.setVisible(true);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error processing payment: " + e.getMessage());
         }
+
+        // 2. Deduct funds safely
+        String updateSQL = "UPDATE accounts SET total_balance = total_balance - ? WHERE acc_id = ?";
+        try (PreparedStatement updateStmt = conn.prepareStatement(updateSQL)) {
+            updateStmt.setBigDecimal(1, totalAmount);
+            updateStmt.setInt(2, selectedAccId);
+            int rowsAffected = updateStmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new Exception("Failed to deduct funds. Please try again.");
+            }
+        }
+
+        conn.commit(); // Commit transaction
+        JOptionPane.showMessageDialog(this, "Payment successful!");
+
+        // Optionally, return to parent form
+        this.dispose();
+        if (parent != null) parent.setVisible(true);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        try {
+            // Rollback on error
+            DBConnection.getConnection().rollback();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        JOptionPane.showMessageDialog(this, "Payment failed: " + e.getMessage());
+    }
+
+
 
     }//GEN-LAST:event_payButtonActionPerformed
 

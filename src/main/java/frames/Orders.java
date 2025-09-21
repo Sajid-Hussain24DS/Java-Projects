@@ -6,9 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import util.DBConnection;
@@ -27,7 +24,9 @@ public class Orders extends javax.swing.JFrame {
         loadProducts();
         setCurrentDate();
         generateOrderCode();
-         
+        
+        setupProductPriceListener();   // <- ye add karo
+    setupQuantityListener();       
 }
     
     private int getProductIdByName(String productName) {
@@ -38,11 +37,11 @@ public class Orders extends javax.swing.JFrame {
         PreparedStatement pst = conn.prepareStatement(sql);
         pst.setString(1, productName);
         ResultSet rs = pst.executeQuery();
-        if (rs.next()) {
+        while (rs.next()) {
             productId = rs.getInt("p_id");
         }
-        conn.close();
-    } catch (Exception e) {
+         
+    } catch (SQLException e) {
         e.printStackTrace();
     }
     return productId;
@@ -92,7 +91,7 @@ private void recalcCartTotal() {
         rs.close();
         ps.close();
         conn.close();
-    } catch (Exception e) {
+    } catch (SQLException e) {
         JOptionPane.showMessageDialog(this, "Error loading products: " + e.getMessage());
     }
 
@@ -170,6 +169,11 @@ private void recalcCartTotal() {
         customerPhoneField.setText(" ");
 
         priceField.setText(" ");
+        priceField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                priceFieldActionPerformed(evt);
+            }
+        });
 
         quantityField.setText(" ");
 
@@ -536,84 +540,101 @@ private void recalcCartTotal() {
     }//GEN-LAST:event_addItemButtonActionPerformed
 
     private void orderNowButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderNowButtonActionPerformed
-                                                 
-    try {
-        DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
-        if (model.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Cart is empty!");
-            return;
+       DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
+if (model.getRowCount() == 0) {
+    JOptionPane.showMessageDialog(this, "Cart is empty!");
+    return;
+}
+
+String customerPhone = customerPhoneField.getText().trim();
+if (customerPhone.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Enter customer phone!");
+    return;
+}
+
+BigDecimal totalAmountBD = BigDecimal.valueOf(getCartTotal());
+String orderNo = codeField.getText();
+
+try (Connection conn = DBConnection.getConnection()) {
+    conn.setAutoCommit(false); // Transaction start
+
+    // 1. Check stock for each product
+    String checkStockSQL = "SELECT quantity FROM products WHERE p_id = ? FOR UPDATE";
+    try (PreparedStatement checkStmt = conn.prepareStatement(checkStockSQL)) {
+        for (int i = 0; i < model.getRowCount(); i++) {
+            int productId = Integer.parseInt(model.getValueAt(i, 0).toString());
+            int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
+            String productName = model.getValueAt(i, 1).toString();
+
+            checkStmt.setInt(1, productId);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next() && rs.getInt("quantity") < qty) {
+                    throw new Exception("Insufficient stock for product: " + productName);
+                }
+            }
         }
+    }
 
-        String customerPhone = customerPhoneField.getText().trim();
-        if (customerPhone.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Enter customer phone!");
-            return;
-        }
-
-        int totalPrice = getCartTotal();
-        String orderNo = codeField.getText();
-
-        Connection conn = DBConnection.getConnection();
-        conn.setAutoCommit(false);
-
-        // Insert order
-        String sqlOrder = "INSERT INTO orders (customer_phone, total_price, order_no, date) VALUES (?, ?, ?, ?)";
-        PreparedStatement psOrder = conn.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
-        
-        String updateSql = "UPDATE products SET quantity = quantity - ? WHERE p_id = ?";
-        PreparedStatement updatePs = conn.prepareStatement(updateSql);
-
+    // 2. Insert order
+    String sqlOrder = "INSERT INTO orders (customer_phone, total_price, order_no, date) VALUES (?, ?, ?, ?)";
+    int orderId;
+    try (PreparedStatement psOrder = conn.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS)) {
         psOrder.setString(1, customerPhone);
-        psOrder.setInt(2, totalPrice);
+        psOrder.setBigDecimal(2, totalAmountBD);
         psOrder.setString(3, orderNo);
         psOrder.setDate(4, new java.sql.Date(System.currentTimeMillis()));
         psOrder.executeUpdate();
 
-        ResultSet rs = psOrder.getGeneratedKeys();
-        int orderId = 0;
-        if (rs.next()) orderId = rs.getInt(1);
+        try (ResultSet rs = psOrder.getGeneratedKeys()) {
+            if (rs.next()) orderId = rs.getInt(1);
+            else throw new Exception("Failed to retrieve order ID");
+        }
+    }
 
-        // Insert order details
-        String sqlDetail = "INSERT INTO order_details (product_id, price, quantity, order_id) VALUES (?, ?, ?, ?)";
-        PreparedStatement psDetail = conn.prepareStatement(sqlDetail);
+    // 3. Insert order details and deduct stock
+    String sqlDetail = "INSERT INTO order_details (product_id, price, quantity, order_id) VALUES (?, ?, ?, ?)";
+    String updateSql = "UPDATE products SET quantity = quantity - ? WHERE p_id = ?";
+    
+    try (PreparedStatement psDetail = conn.prepareStatement(sqlDetail);
+         PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
 
         for (int i = 0; i < model.getRowCount(); i++) {
             int productId = Integer.parseInt(model.getValueAt(i, 0).toString());
             int price = Integer.parseInt(model.getValueAt(i, 2).toString());
             int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
 
+            // Insert order_details
             psDetail.setInt(1, productId);
             psDetail.setInt(2, price);
             psDetail.setInt(3, qty);
             psDetail.setInt(4, orderId);
             psDetail.addBatch();
-        
-        updatePs.setInt(1, qty);
-        updatePs.setInt(2, productId);
-        updatePs.addBatch();
+
+            // Deduct stock
+            updatePs.setInt(1, qty);
+            updatePs.setInt(2, productId);
+            updatePs.addBatch();
         }
+
         psDetail.executeBatch();
         updatePs.executeBatch();
-        
-             
-        conn.commit();
-        conn.close();
-
-        JOptionPane.showMessageDialog(this, "Order placed successfully!");
-        loadAvailableProducts();
-
-        
-     PaymentForm paymentForm = new PaymentForm(orderId, totalAmount, "ORDER", this);
-paymentForm.setVisible(true);
-paymentForm.setLocationRelativeTo(null);
-this.setVisible(false);
-
-
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
     }
 
+    conn.commit(); // Commit transaction
+
+    JOptionPane.showMessageDialog(this, "Order placed successfully!");
+    loadAvailableProducts();
+
+    // Open payment form
+    PaymentForm paymentForm = new PaymentForm(orderId, totalAmountBD, "ORDER", this);
+    paymentForm.setVisible(true);
+    paymentForm.setLocationRelativeTo(null);
+    this.setVisible(false);
+
+} catch (Exception e) {
+    e.printStackTrace();
+    JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+}
 
 
 
@@ -699,6 +720,10 @@ this.setVisible(false);
 
     }//GEN-LAST:event_availableProductTableMouseClicked
 
+    private void priceFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_priceFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_priceFieldActionPerformed
+
      
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -778,6 +803,48 @@ void loadAvailableProducts() {
 
     } catch (Exception e) {
         e.printStackTrace();
+    }
+}
+
+   private void setupProductPriceListener() {
+    productBox.addActionListener(e -> {
+        String selectedProduct = (String) productBox.getSelectedItem();
+        if (selectedProduct != null && !selectedProduct.trim().isEmpty()) {
+            try (Connection conn = DBConnection.getConnection()) {
+                String sql = "SELECT price FROM products WHERE name = ?";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, selectedProduct);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    int price = rs.getInt("price");
+                    priceField.setText(String.valueOf(price));
+                    recalcGrandTotal(); // quantity ke hisaab se total update
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    });
+}
+
+
+   private void setupQuantityListener() {
+    quantityField.addKeyListener(new java.awt.event.KeyAdapter() {
+        @Override
+        public void keyReleased(java.awt.event.KeyEvent e) {
+            recalcGrandTotal();
+        }
+    });
+}
+
+private void recalcGrandTotal() {
+    try {
+        int price = Integer.parseInt(priceField.getText().trim());
+        int qty = Integer.parseInt(quantityField.getText().trim());
+        int total = price * qty;
+        grandTotalField.setText(String.valueOf(total));
+    } catch (NumberFormatException ex) {
+        grandTotalField.setText("0");
     }
 }
 
