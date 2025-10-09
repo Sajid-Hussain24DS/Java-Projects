@@ -1,8 +1,10 @@
 package service;
 
 import  model.IssuedBook;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+@Service
 public interface IssuedBookService {
     void issueBook(IssuedBook issuedBook);
     void returnBook(int issueId);

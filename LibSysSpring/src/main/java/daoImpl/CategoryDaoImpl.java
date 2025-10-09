@@ -1,14 +1,27 @@
-package daoimpl;
+package daoImpl;
 
+import Configuration.AppConfig;
 import dao.CategoryDao;
 import model.Category;
 import database.DBConnection;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PrimitiveIterator;
 
+@Repository
 public class CategoryDaoImpl implements CategoryDao {
+
+    private static final ApplicationContext CONTEXT = new AnnotationConfigApplicationContext(AppConfig.class);
+
+    private Category getCategory(){
+        return CONTEXT.getBean(Category.class);
+    }
 
     private Connection conn;
 
@@ -43,7 +56,7 @@ public class CategoryDaoImpl implements CategoryDao {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Category category = new Category();
+                Category  category = getCategory();
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
                 return category;
@@ -62,7 +75,7 @@ public class CategoryDaoImpl implements CategoryDao {
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                Category category = new Category();
+                Category  category = getCategory();
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
                 categories.add(category);
@@ -110,14 +123,14 @@ public class CategoryDaoImpl implements CategoryDao {
         System.out.println("⬅ Going back to previous menu...");
     }
     
-    // Additional method that you'll need for your Book form
+
     public Category getCategoryByName(String categoryName) {
         String sql = "SELECT * FROM lib_categories WHERE category_name=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, categoryName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Category category = new Category();
+                Category  category = getCategory();
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
                 return category;

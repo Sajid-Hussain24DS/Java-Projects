@@ -1,5 +1,8 @@
 package model;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Book {
     private int bookId;
     private String title;
@@ -46,7 +49,7 @@ public class Book {
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    // ✅ Add this method so no UnsupportedOperationException comes
+
     public int getId() {
         return this.bookId;
     }

@@ -4,11 +4,15 @@ import  dao.StudentDao;
 import daoImpl.StudentDaoImpl;
  
 import  model.Student;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import  service.StudentService;
 import java.util.List;
-
+@Service
 public class StudentServiceImpl implements StudentService {
-    private StudentDao studentDAO = new StudentDaoImpl();
+    @Autowired
+    private StudentDao studentDAO;
 
     @Override
     public void addStudent(Student student) {

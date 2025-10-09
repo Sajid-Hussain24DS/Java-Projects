@@ -1,8 +1,10 @@
 package  service;
 
 import  model.Student;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+@Service
 public interface StudentService {
     void addStudent(Student student);
     void updateStudent(Student student);

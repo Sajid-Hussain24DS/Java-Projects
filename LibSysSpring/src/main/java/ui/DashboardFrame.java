@@ -1,27 +1,39 @@
 package ui;
 
+import Configuration.AppConfig;
 import dao.StudentDao;
 import daoImpl.BookDaoImpl;
 import daoImpl.StudentDaoImpl;
-import daoimpl.IssuedBookDaoImpl;
+import daoImpl.IssuedBookDaoImpl;
 import javax.swing.JOptionPane;
 import java.util.List;
 import model.Book;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DashboardFrame extends javax.swing.JFrame {
-    
+    private static final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+    public AddBookForm getaddBookForm(){
+        return context.getBean(AddBookForm.class);
+    }
+    public StudentManagment getStudentManagment(){
+        return context.getBean(StudentManagment.class,studentDao, "Add");
+    }
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DashboardFrame.class.getName());
+    @Autowired
     private BookDaoImpl bookDao;
+    @Autowired
     private StudentDaoImpl studentDao;
+    @Autowired
     private IssuedBookDaoImpl issuedBookDao;
     private boolean processingEvent = false;
      
     public DashboardFrame() {
         initComponents();
-        bookDao = new BookDaoImpl();
-        studentDao = new StudentDaoImpl();
-        issuedBookDao = new IssuedBookDaoImpl();
-        
         initializeComboBoxes();
     }
     
@@ -51,12 +63,10 @@ public class DashboardFrame extends javax.swing.JFrame {
        }
 
 private void disableActionListeners() {
-    // Temporary flag set karo
-    processingEvent = true;
+        processingEvent = true;
 }
 
 private void enableActionListeners() {
-    // Flag reset karo
     processingEvent = false;
 
     }
@@ -157,8 +167,8 @@ private void enableActionListeners() {
     }// </editor-fold>//GEN-END:initComponents
     
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-    if (processingEvent) return; // ← ADD THIS
-        processingEvent = true; // ← ADD THIS
+    if (processingEvent) return;
+        processingEvent = true;
         
         if (evt.getSource() != jComboBox1) {
             processingEvent = false;
@@ -188,12 +198,13 @@ private void enableActionListeners() {
                 break;
         }
         
-        processingEvent = false; // ← ADD THIS
+        processingEvent = false;
     }
 
     private void openBookForm(String mode) {
         this.dispose();
-        AddBookForm bookForm = new AddBookForm(bookDao, mode);
+        AddBookForm bookForm = getaddBookForm();
+        bookForm.setMode("ADD");
         bookForm.setVisible(true);
                                             
 
@@ -201,8 +212,8 @@ private void enableActionListeners() {
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-   if (processingEvent) return; // ← ADD THIS
-        processingEvent = true; // ← ADD THIS
+   if (processingEvent) return;
+        processingEvent = true;
         
         if(evt.getSource() != jComboBox2) {
             processingEvent = false;
@@ -231,20 +242,20 @@ private void enableActionListeners() {
                 break;
         }
         
-        processingEvent = false; // ← ADD THIS
+        processingEvent = false;
     }
 
     private void openStudentForm(String mode) {
         this.dispose();
-        StudentManagment studentForm = new StudentManagment(studentDao, mode);
+        StudentManagment studentForm = getStudentManagment();
         studentForm.setVisible(true);
                                               
 
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void issueManagmentBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_issueManagmentBoxActionPerformed
-       if (processingEvent) return; // ← ADD THIS
-        processingEvent = true; // ← ADD THIS
+       if (processingEvent) return;
+        processingEvent = true;
         
         if (evt.getSource() != issueManagmentBox) {
             processingEvent = false;
@@ -277,7 +288,7 @@ private void enableActionListeners() {
                 break;
         }
         
-        processingEvent = false; // ← ADD THIS
+        processingEvent = false;
     }
          
     private void openIssueForm(String mode) {

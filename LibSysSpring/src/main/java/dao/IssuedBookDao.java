@@ -3,7 +3,9 @@ package dao;
 import java.sql.Date;
 import java.util.List;
 import model.IssuedBook;
+import org.springframework.stereotype.Component;
 
+@Component
 public interface IssuedBookDao {
     void addIssue(IssuedBook issuedBook);
     void updateIssue(IssuedBook issuedBook);

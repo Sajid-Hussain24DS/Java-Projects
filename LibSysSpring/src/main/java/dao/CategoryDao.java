@@ -1,8 +1,10 @@
 package dao;
 
 import model.Category;
-import java.util.List;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+@Component
 public interface CategoryDao {
     void addCategory(Category category);
     Category getCategoryById(int id);

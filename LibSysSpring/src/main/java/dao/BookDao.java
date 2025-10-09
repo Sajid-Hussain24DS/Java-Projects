@@ -1,8 +1,10 @@
 package dao;
 
 import model.Book;
-import java.util.List;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+@Component
 public interface BookDao {
     void addBook(Book book);
     void updateBook(Book book);

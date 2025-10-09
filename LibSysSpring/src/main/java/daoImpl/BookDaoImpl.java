@@ -1,5 +1,6 @@
 package daoImpl;
 
+import Configuration.AppConfig;
 import dao.BookDao;
  
 import model.Book;
@@ -10,8 +11,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import database.DBConnection;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class BookDaoImpl implements BookDao {
+    private static final ApplicationContext context =
+            new AnnotationConfigApplicationContext(AppConfig.class);
+
+    private Book getBook() {
+        return context.getBean(Book.class);
+    }
 
     @Override
     public void addBook(Book book) {
@@ -74,7 +86,9 @@ public class BookDaoImpl implements BookDao {
             ps.setInt(1, bookId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Book book = new Book();
+
+                // Get a Book object from Spring container instead of creating it manually
+                    Book book = getBook();
                     book.setBookId(rs.getInt("book_id"));
                     book.setTitle(rs.getString("title"));
                     book.setAuthor(rs.getString("author"));
@@ -104,7 +118,7 @@ public List<Book> getAllBooks() {
          ResultSet rs = ps.executeQuery()) {
 
         while (rs.next()) {
-            Book book = new Book();
+            Book book = getBook();
             book.setBookId(rs.getInt("book_id"));
             book.setTitle(rs.getString("title"));
             book.setAuthor(rs.getString("author"));
@@ -134,7 +148,7 @@ public List<Book> getBooksByCategory(int categoryId) {
         
         try (ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                Book book = new Book();
+                Book book = getBook();
                 book.setBookId(rs.getInt("book_id"));
                 book.setTitle(rs.getString("title"));
                 book.setAuthor(rs.getString("author"));
@@ -151,35 +165,6 @@ public List<Book> getBooksByCategory(int categoryId) {
     return books;
 }
 
-//public List<Book> getBooksByCategoryName(String categoryName) {
-//    List<Book> books = new ArrayList<>();
-//    String sql = "SELECT b.* FROM lib_books b " +
-//                 "INNER JOIN lib_categories c ON b.category_id = c.category_id " +
-//                 "WHERE c.category_name = ?";
-//    
-//    try (Connection connection = DBConnection.getConnection();
-//         PreparedStatement ps = connection.prepareStatement(sql)) {
-//
-//        ps.setString(1, categoryName);
-//        
-//        try (ResultSet rs = ps.executeQuery()) {
-//            while (rs.next()) {
-//                Book book = new Book();
-//                book.setBookId(rs.getInt("book_id"));
-//                book.setTitle(rs.getString("title"));
-//                book.setAuthor(rs.getString("author"));
-//                book.setPublisher(rs.getString("publisher"));
-//                book.setIsbn(rs.getString("isbn"));
-//                book.setCategoryId(rs.getInt("category_id"));
-//                book.setQuantity(rs.getInt("quantity"));
-//                books.add(book);
-//            }
-//        }
-//    } catch (SQLException e) {
-//        e.printStackTrace();
-//    }
-//    return books;
-//}
 @Override
 public void decreaseBookQuantity(int bookId) {
     String sql = "UPDATE lib_books SET quantity = quantity - 1 WHERE book_id = ? AND quantity > 0";
@@ -192,7 +177,7 @@ public void decreaseBookQuantity(int bookId) {
         
     } catch (SQLException e) {
         e.printStackTrace();
-        // Exception handle karo ya throw karo according to your needs
+
     }
 }
 

@@ -1,15 +1,18 @@
 package serviceImpl;
 
 import dao.IssuedBookDao;
-import daoimpl.IssuedBookDaoImpl;
+import daoImpl.IssuedBookDaoImpl;
 import model.IssuedBook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import service.IssuedBookService;
 
 import java.util.List;
-
+@Service
 public class IssuedBookServiceImpl implements IssuedBookService {
-
-    private final IssuedBookDao issuedBookDAO = new IssuedBookDaoImpl();
+    @Autowired
+    private IssuedBookDao issuedBookDAO;
 
     @Override
     public void issueBook(IssuedBook issuedBook) {
@@ -23,9 +26,9 @@ public class IssuedBookServiceImpl implements IssuedBookService {
             // Use java.sql.Date for DAO compatibility
             issuedBook.setReturnDate(new java.sql.Date(System.currentTimeMillis()));
             issuedBookDAO.issueBook(issuedBook); // or implement updateIssue() in DAO
-            System.out.println("✅ Book returned successfully.");
+            System.out.println("Book returned successfully.");
         } else {
-            System.out.println("❌ Issue record not found!");
+            System.out.println("Issue record not found!");
         }
     }
 

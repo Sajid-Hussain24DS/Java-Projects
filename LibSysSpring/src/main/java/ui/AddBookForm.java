@@ -2,27 +2,44 @@
 
 package ui;
 
+import Configuration.AppConfig;
 import dao.BookDao;
 import daoImpl.BookDaoImpl;
 import daoImpl.StudentDaoImpl;
 import  database.CategoryDbManager;
 import model.Book;
 import model.Category;
- 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import javax.swing.JOptionPane;
-
+@Component
 public class AddBookForm extends javax.swing.JFrame {
-    
+    @Autowired
+    private ApplicationContext context;
+
+    private Book getBook() {
+        return context.getBean(Book.class);
+    }
+
+    private DashboardFrame getDashboard(){
+        return context.getBean(DashboardFrame.class);
+    }
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AddBookForm.class.getName());
-    CategoryDbManager categoryDBManager = new CategoryDbManager();
-    BookDao bookDao = new BookDaoImpl();
+    @Autowired
+    CategoryDbManager categoryDBManager;
+
+    @Autowired
+    private  BookDao bookDao;
     public static int bookId = 0;
     private String mode = "ADD";
         
     public AddBookForm(BookDaoImpl bookDao, String mode) {
        initComponents();
-    this.bookDao = bookDao;
     this.mode = mode;
     fillCategoryBox();
     setupFormMode();
@@ -309,8 +326,8 @@ private void loadBooksTable() {
             JOptionPane.showMessageDialog(this, "Selected category not found!");
             return;
         }
-        
-        Book book = new Book();
+
+        Book book = getBook();
         book.setTitle(title);
         book.setAuthor(author);
         book.setIsbn(isbn);
@@ -334,7 +351,7 @@ private void loadBooksTable() {
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
         this.dispose();
-        DashboardFrame dashboard = new DashboardFrame();
+        DashboardFrame dashboard = getDashboard();
         dashboard.setVisible(true);
     
     }//GEN-LAST:event_backButtonActionPerformed
@@ -367,8 +384,8 @@ private void loadBooksTable() {
         return;
     }
     
-    // Create Book object and set values
-    Book book = new Book();
+
+    Book book = getBook();
     book.setBookId(bookId); 
     book.setTitle(title);
     book.setAuthor(author);

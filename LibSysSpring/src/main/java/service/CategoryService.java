@@ -1,8 +1,10 @@
 package  service;
 
 import  model.Category;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+@Service
 public interface CategoryService {
     void addCategory(Category category);
     void updateCategory(Category category);

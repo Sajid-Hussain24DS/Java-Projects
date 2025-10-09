@@ -2,16 +2,27 @@
 package ui;
 
 import javax.swing.JOptionPane;
+
+import Configuration.AppConfig;
 import model.Admin;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 import service.AdminService;
 import serviceImpl.AdminServiceImpl;
 
- 
+@Component
 public class LoginForm extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginForm.class.getName());
 
-     
+    private static final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    public AdminService getAdminService() {
+        return context.getBean(AdminService.class);
+    }
+    public DashboardFrame dashboardFrame (){
+        return  context.getBean(DashboardFrame.class);
+    }
     public LoginForm() {
         initComponents();
     }
@@ -107,13 +118,13 @@ public class LoginForm extends javax.swing.JFrame {
         return;
     }
 
-    AdminService adminService = new AdminServiceImpl();
+    AdminService adminService = getAdminService();
     Admin loggedInAdmin = adminService.login(username, password);
 
     if(loggedInAdmin != null) {
         JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + loggedInAdmin.getUsername());
         // Open the dashboard or main application panel
-        DashboardFrame dashboard = new DashboardFrame();
+        DashboardFrame dashboard = dashboardFrame();
         dashboard.setVisible(true);
         this.dispose(); // close login frame
     } else {
@@ -124,10 +135,7 @@ public class LoginForm extends javax.swing.JFrame {
     }//GEN-LAST:event_loginButtonActionPerformed
 
      
-    public static void main(String args[]) {
-        
-        java.awt.EventQueue.invokeLater(() -> new LoginForm().setVisible(true));
-    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

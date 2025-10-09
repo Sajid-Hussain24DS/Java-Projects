@@ -4,13 +4,16 @@ import dao.BookDao;
 import daoImpl.BookDaoImpl;
  
 import model.Book;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import service.BookService;
 
 import java.util.List;
-
+@Service
 public class BookServiceImpl implements BookService {
-
-    private BookDao bookDao = new BookDaoImpl();
+    @Autowired
+    private BookDao bookDao;
 
     @Override
     public void addBook(Book book) {

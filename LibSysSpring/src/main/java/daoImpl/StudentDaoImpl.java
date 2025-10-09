@@ -1,14 +1,24 @@
 package daoImpl;
 
+import Configuration.AppConfig;
 import dao.StudentDao;
 import model.Student;
 import database.DBConnection;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class StudentDaoImpl implements StudentDao {
+    private static final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    private Student getStudent(){
+        return context.getBean(Student.class);
+    }
 
     private Connection conn;
 
@@ -44,7 +54,7 @@ public class StudentDaoImpl implements StudentDao {
             ps.setInt(1, studentId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Student student = new Student();
+                Student student = getStudent();
                 student.setStudentId(rs.getInt("student_Id"));
                 student.setName(rs.getString("name"));
                 student .setAge(rs.getInt("age"));
@@ -66,7 +76,7 @@ public class StudentDaoImpl implements StudentDao {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Student student = new Student();
+                Student student = getStudent();
                 student.setStudentId(rs.getInt("student_Id"));
                 student.setName(rs.getString("name"));
                 student .setAge(rs.getInt("age"));

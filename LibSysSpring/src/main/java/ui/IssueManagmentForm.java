@@ -5,7 +5,7 @@ import dao.IssuedBookDao;
 import dao.StudentDao;
 import daoImpl.BookDaoImpl;
 import daoImpl.StudentDaoImpl;
-import daoimpl.IssuedBookDaoImpl;
+import daoImpl.IssuedBookDaoImpl;
 import database.DBConnection;
 import java.sql.Connection;
 import java.sql.Date;
@@ -21,7 +21,9 @@ import javax.swing.table.DefaultTableModel;
 import model.Book;
 import model.IssuedBook;
 import model.Student;
+import org.springframework.stereotype.Component;
 
+@Component
 public class IssueManagmentForm extends javax.swing.JFrame {
 
     private IssuedBookDao issuedBookDao;

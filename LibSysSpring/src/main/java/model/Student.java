@@ -1,5 +1,9 @@
 package model;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+
+@Component
 public class Student {
      
     private int studentId;

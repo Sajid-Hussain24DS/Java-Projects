@@ -1,15 +1,24 @@
-package daoimpl;
+package daoImpl;
 
+import Configuration.AppConfig;
 import dao.IssuedBookDao;
 import model.IssuedBook;
 import database.DBConnection;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+@Repository
 public class IssuedBookDaoImpl implements IssuedBookDao {
+private static final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 
+private IssuedBook getIssuedBook(){
+    return context.getBean(IssuedBook.class);
+}
     private Connection conn;
 
     public IssuedBookDaoImpl() {
@@ -73,7 +82,7 @@ public class IssuedBookDaoImpl implements IssuedBookDao {
             stmt.setInt(1, issueId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                IssuedBook issuedBook = new IssuedBook();
+                IssuedBook issuedBook = getIssuedBook();
                 issuedBook.setIssueId(rs.getInt("issue_id"));
                 issuedBook.setStudentId(rs.getInt("student_id"));
                 issuedBook.setBookId(rs.getInt("book_id"));
@@ -107,7 +116,7 @@ public class IssuedBookDaoImpl implements IssuedBookDao {
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                IssuedBook issuedBook = new IssuedBook();
+                IssuedBook issuedBook = getIssuedBook();
                 issuedBook.setIssueId(rs.getInt("issue_id"));
                 issuedBook.setStudentId(rs.getInt("student_id"));
                 issuedBook.setBookId(rs.getInt("book_id"));
@@ -130,7 +139,7 @@ public class IssuedBookDaoImpl implements IssuedBookDao {
             stmt.setInt(1, studentId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                IssuedBook issuedBook = new IssuedBook();
+                IssuedBook issuedBook = getIssuedBook();
                 issuedBook.setIssueId(rs.getInt("issue_id"));
                 issuedBook.setStudentId(rs.getInt("student_id"));
                 issuedBook.setBookId(rs.getInt("book_id"));
@@ -145,7 +154,7 @@ public class IssuedBookDaoImpl implements IssuedBookDao {
         return issuedBooks;
     }
     
-    // Don't forget to close the connection when done
+
     public void closeConnection() {
         try {
             if (conn != null && !conn.isClosed()) {
@@ -281,7 +290,7 @@ public List<IssuedBook> getIssuesByBookId(int bookId) {
 
 // Helper method to map ResultSet to IssuedBook object
 private IssuedBook mapResultSetToIssuedBook(ResultSet rs) throws SQLException {
-    IssuedBook issuedBook = new IssuedBook();
+    IssuedBook issuedBook = getIssuedBook();
     issuedBook.setIssueId(rs.getInt("issue_id"));
     issuedBook.setStudentId(rs.getInt("student_id"));
     issuedBook.setBookId(rs.getInt("book_id"));
@@ -310,27 +319,7 @@ public boolean returnBook(int studentId, int bookId, Date returnDate) {
         return false;
     }
 }
-//@Override
-//public boolean hasActiveIssue(int studentId, int bookId) {
-//    String sql = "SELECT COUNT(*) FROM issued_books WHERE student_id = ? AND book_id = ? AND return_date IS NULL";
-//    
-//    try (Connection conn = DBConnection.getConnection();
-//         PreparedStatement stmt = conn.prepareStatement(sql)) {
-//        
-//        stmt.setInt(1, studentId);
-//        stmt.setInt(2, bookId);
-//        
-//        ResultSet rs = stmt.executeQuery();
-//        if (rs.next()) {
-//            return rs.getInt(1) > 0;
-//        }
-//        return false;
-//        
-//    } catch (SQLException e) {
-//        e.printStackTrace();
-//        return false;
-//    }
-//}
+
 
     @Override
 public boolean deleteIssuedBook(int issueId) {

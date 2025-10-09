@@ -1,14 +1,16 @@
-package daoimpl;
+package daoImpl;
 
 import dao.AdminDao;
 import model.Admin;
 import database.DBConnection;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+@Repository
 public class AdminDaoImpl implements AdminDao {
 
     private Connection conn;

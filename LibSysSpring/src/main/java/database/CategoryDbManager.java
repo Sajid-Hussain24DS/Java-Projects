@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Category;
 import database.DBConnection;
+import org.springframework.stereotype.Component;
+
+@Component
 public class CategoryDbManager {
 
     public void addCategory(Category category) {

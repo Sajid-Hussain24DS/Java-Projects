@@ -1,8 +1,11 @@
 package service;
 
 import model.Book;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+@Service
 public interface BookService {
     void addBook(Book book);
     void updateBook(Book book);
@@ -14,4 +17,5 @@ public interface BookService {
     List<Book> getBooksByCategory(int categoryId);
 
     void goBack();
+
 }

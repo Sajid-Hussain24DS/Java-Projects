@@ -1,7 +1,9 @@
 package model;
 
-import java.sql.Date;
+import org.springframework.stereotype.Component;
 
+import java.sql.Date;
+@Component
 public class IssuedBook {
     private int issueId;
     private int studentId;

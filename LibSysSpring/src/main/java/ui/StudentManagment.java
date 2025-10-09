@@ -6,8 +6,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.Student;
+import org.springframework.stereotype.Component;
 
- 
+@Component
 public class StudentManagment extends javax.swing.JFrame {
      private static final java.util.logging.Logger logger =
             java.util.logging.Logger.getLogger(StudentManagment.class.getName());

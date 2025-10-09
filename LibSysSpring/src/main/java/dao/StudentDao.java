@@ -1,8 +1,10 @@
 package  dao;
 
 import  model.Student;
-import java.util.List;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+@Component
 public interface StudentDao {
     void addStudent(Student student);
     Student getStudentById(int studentId);
