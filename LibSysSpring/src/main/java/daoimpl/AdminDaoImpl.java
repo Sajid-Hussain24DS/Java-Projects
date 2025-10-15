@@ -1,30 +1,28 @@
-package daoImpl;
+package daoimpl;
 
 import dao.AdminDao;
 import model.Admin;
 import database.DBConnection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@Component
 public class AdminDaoImpl implements AdminDao {
 
-    private Connection conn;
 
-    public AdminDaoImpl() {
-        try {
-            conn = DBConnection.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
+    @Autowired
+    private DBConnection dbConnection;
     @Override
     public Admin login(String username, String password) {
+        try(Connection conn = dbConnection.getConnection()){
         String sql = "SELECT * FROM lib_admins WHERE username=? AND password=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, username);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();

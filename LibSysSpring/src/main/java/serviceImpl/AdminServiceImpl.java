@@ -1,13 +1,16 @@
 package serviceImpl;
 
 import dao.AdminDao;
-import daoImpl.AdminDaoImpl;
+import daoimpl.AdminDaoImpl;
 import model.Admin;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import service.AdminService;
-
+@Service
 public class AdminServiceImpl implements AdminService {
-
-    private final AdminDao adminDao = new AdminDaoImpl();
+    @Autowired
+    private AdminDao adminDao;
 
     @Override
     public Admin login(String username, String password) {

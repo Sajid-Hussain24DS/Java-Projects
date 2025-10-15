@@ -5,14 +5,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan(basePackages = {
-    "dao", 
-    "daoImpl", 
-    "database", 
-    "model", 
-    "service", 
-    "serviceImpl", 
-    "ui"
+        "dao",
+        "daoimpl",
+        "ui",
+        "serviceImpl",
+        "database",
+        "model"
+
 })
 public class AppConfig {
-    
 }

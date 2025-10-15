@@ -2,71 +2,77 @@
 
 package ui;
 
-import Config.AppConfig;
 import dao.BookDao;
-import daoImpl.BookDaoImpl;
-import daoImpl.StudentDaoImpl;
+import daoimpl.BookDaoImpl;
 import  database.CategoryDbManager;
 import model.Book;
 import model.Category;
- 
-import java.util.List;
-import javax.swing.JOptionPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import javax.swing.JOptionPane;
+
 @Component
 public class AddBookForm extends javax.swing.JFrame {
-
+    @Autowired
+    private BookDao bookDao;
+    @Autowired
+    private ApplicationContext context;
+    
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AddBookForm.class.getName());
 
-    private final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    @Autowired
+    private CategoryDbManager categoryDBManager;
 
-    public Book getBook(){
-        return context.getBean(Book.class);
-    }
-    CategoryDbManager categoryDBManager = new CategoryDbManager();
-    BookDao bookDao = new BookDaoImpl();
+
+
     public static int bookId = 0;
     private String mode = "ADD";
 
-    public AddBookForm(BookDaoImpl bookDao, String mode) {
-        initComponents();
-        this.bookDao = bookDao;
-        this.mode = mode;
-        fillCategoryBox();
-        setupFormMode();
-        loadBooksTable();
+    public AddBookForm() {
+       initComponents();
     }
-    
-     
-private void loadBooksTable() {
-    try {
-        List<Book> books = bookDao.getAllBooks(); 
+    public void init() {
+        loadBooksTable();
+        fillCategoryBox();
+        System.out.println("✅ AddBookForm initialized with bookDao: " + (bookDao != null));
+    }
 
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel();
-        model.setColumnIdentifiers(new String[]{"ID", "Title", "Author", "Publisher", "ISBN", "Quantity", "Category"});
 
-        for (Book book : books) {
-            model.addRow(new Object[]{
-                book.getId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getPublisher(),
-                book.getIsbn(),
-                book.getQuantity(),
-                book.getCategoryName(), 
-                book.getCategoryId()  
+    private void fillCategoryBox() {
+        List<Category> categories = categoryDBManager.getAllCategories();
+        categories.forEach(c -> categoryBox.addItem(c.getCategoryName()));
+    }
+    private void loadBooksTable() {
+        try {
+            List<Book> books = bookDao.getAllBooks();
+            javax.swing.table.DefaultTableModel model =
+                    new javax.swing.table.DefaultTableModel();
+            model.setColumnIdentifiers(new String[]{
+                    "ID", "Title", "Author", "Publisher", "ISBN", "Quantity", "Category"
             });
+
+            for (Book book : books) {
+                model.addRow(new Object[]{
+                        book.getId(),
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getPublisher(),
+                        book.getIsbn(),
+                        book.getQuantity(),
+                        book.getCategoryName()
+                });
+            }
+
+            bookTable.setModel(model);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading books: " + e.getMessage());
         }
 
-        bookTable.setModel(model);
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error loading books: " + e.getMessage());
-    }
 }
 
      private void setupFormMode() {
@@ -96,12 +102,7 @@ private void loadBooksTable() {
                 break;
         }
     }
-    private void fillCategoryBox() {
-        List<Category> categories = categoryDBManager.getAllCategories();
-        categories.forEach(category -> {
-            categoryBox.addItem(category.getCategoryName());
-        });
-    } 
+
     public void setMode(String mode) {
     if ("UPDATE".equalsIgnoreCase(mode)) {
         saveButton.setVisible(false);
@@ -292,7 +293,9 @@ private void loadBooksTable() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
- 
+   
+     
+      
     try {
         String title = titleField.getText().trim();
         String author = authorField.getText().trim();
@@ -321,7 +324,7 @@ private void loadBooksTable() {
             return;
         }
         
-        Book book = getBook();
+        Book book = context.getBean(Book.class);
         book.setTitle(title);
         book.setAuthor(author);
         book.setIsbn(isbn);
@@ -345,7 +348,7 @@ private void loadBooksTable() {
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
         this.dispose();
-        DashboardFrame dashboard =  new DashboardFrame();
+        DashboardFrame dashboard = context.getBean(DashboardFrame.class);
         dashboard.setVisible(true);
     
     }//GEN-LAST:event_backButtonActionPerformed
@@ -377,8 +380,9 @@ private void loadBooksTable() {
         JOptionPane.showMessageDialog(this, "Selected category not found!");
         return;
     }
-     
-    Book book =  getBook();
+    
+
+    Book book = context.getBean(Book.class);
     book.setBookId(bookId); 
     book.setTitle(title);
     book.setAuthor(author);
@@ -410,7 +414,7 @@ private void loadBooksTable() {
         Object idValue = bookTable.getValueAt(selectedRow, 0);
         if (idValue != null) {
             try {
-                bookId = Integer.parseInt(idValue.toString()); // ← This must work
+                bookId = Integer.parseInt(idValue.toString());
             } catch (NumberFormatException e) {
                 bookId = -1;
                 System.out.println("Invalid ID: " + idValue);

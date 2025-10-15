@@ -1,6 +1,8 @@
 package  dao;
 
 import  model.Student;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 public interface StudentDao {

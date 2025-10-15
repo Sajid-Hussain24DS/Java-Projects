@@ -1,47 +1,42 @@
 package ui;
 
-import Config.AppConfig;
-import dao.StudentDao;
-import daoImpl.StudentDaoImpl;
+import daoimpl.StudentDaoImpl;
 import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
+
 import model.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class StudentManagment extends javax.swing.JFrame {
-    @Autowired
-    private final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-
-    public Student getStudent(){
-        return context.getBean(Student.class);
-    }
-     private static final java.util.logging.Logger logger =
+    private static final java.util.logging.Logger logger =
             java.util.logging.Logger.getLogger(StudentManagment.class.getName());
 
-    StudentDaoImpl studentDao = new StudentDaoImpl();
-    public static int studentId = 0;  
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
+    private StudentDaoImpl studentDao;
+
+    public static int studentId = 0;
     private String mode = "ADD";
-    
-    public StudentManagment(StudentDaoImpl studentDao, String mode) {
+
+    public StudentManagment() {
         initComponents();
-        this.studentDao = studentDao;
-        this.mode = mode;
         setupFormMode();
-          
+
+    }
+
+    public void init() {
         loadStudentsIntoTable();
     }
- 
-    // Table reload karne ka method
  private void loadStudentsIntoTable() {
         try {
             List<Student> students = studentDao.getAllStudents();
 
         javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel();
-           // DefaultTableModel model = new DefaultTableModel();
             model.setColumnIdentifiers(new String[]{"ID", "Name", "Age", "Roll No", "Email", "Contact"});
 
             for (Student s : students) {
@@ -301,7 +296,7 @@ public class StudentManagment extends javax.swing.JFrame {
                 return;
             }
 
-            Student student = getStudent();
+            Student student = context.getBean(Student.class);
             student.setStudentId(studentId); 
             student.setName(name);
             student.setAge(age);
@@ -333,7 +328,7 @@ public class StudentManagment extends javax.swing.JFrame {
                 return;
             }
 
-            Student student = getStudent();
+            Student student = context.getBean(Student.class);
             student.setName(name);
             student.setAge(age);
             student.setRollNumber(rollNo);
@@ -401,7 +396,7 @@ public class StudentManagment extends javax.swing.JFrame {
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
      this.dispose();
-        DashboardFrame dashboard = new DashboardFrame();
+        DashboardFrame dashboard = context.getBean(DashboardFrame.class);
         dashboard.setVisible(true);
     }//GEN-LAST:event_backButtonActionPerformed
 
@@ -426,6 +421,9 @@ public class StudentManagment extends javax.swing.JFrame {
     private javax.swing.JButton saveButton;
     private javax.swing.JTable studentTable;
     private javax.swing.JButton updateButton;
+
+    public void setMode(String mode) {
+    }
     // End of variables declaration//GEN-END:variables
 
     

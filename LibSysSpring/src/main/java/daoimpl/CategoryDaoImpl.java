@@ -1,42 +1,34 @@
-package daoImpl;
+package daoimpl;
 
-import Config.AppConfig;
 import dao.CategoryDao;
 import model.Category;
 import database.DBConnection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.stereotype.Repository;
 
-@Repository
+
+@Component
 public class CategoryDaoImpl implements CategoryDao {
 
+
     @Autowired
-    private final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    private DBConnection dbConnection;
 
-    public Category getCategory(){
-        return context.getBean(Category.class);
-    }
-    private Connection conn;
+    @Autowired
+    private ApplicationContext context;
 
-    public CategoryDaoImpl() {
-        try {
-            conn = DBConnection.getConnection();
-        } catch (SQLException ex) {
-            System.err.println("Error getting database connection: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-    }
+
 
     @Override
     public void addCategory(Category category) {
         String sql = "INSERT INTO lib_categories (category_name) VALUES (?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try(Connection conn = dbConnection.getConnection()){
+         PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, category.getCategoryName());
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
@@ -51,11 +43,12 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public Category getCategoryById(int id) {
         String sql = "SELECT * FROM lib_categories WHERE category_id=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try(Connection conn = dbConnection.getConnection()){
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Category category = getCategory();
+                Category category = context.getBean(Category.class);
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
                 return category;
@@ -66,30 +59,37 @@ public class CategoryDaoImpl implements CategoryDao {
         }
         return null;
     }
-
     @Override
     public List<Category> getAllCategories() {
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT * FROM lib_categories";
-        try (Statement stmt = conn.createStatement();
+
+        try (Connection conn = dbConnection.getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
-                Category category = getCategory();
+                // Create Category using Spring context
+                Category category = context.getBean(Category.class);
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
                 categories.add(category);
             }
+
         } catch (SQLException e) {
             System.err.println("Error getting all categories: " + e.getMessage());
             e.printStackTrace();
         }
+
         return categories;
     }
+
 
     @Override
     public void updateCategory(Category category) {
         String sql = "UPDATE lib_categories SET category_name=? WHERE category_id=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try(Connection conn = dbConnection.getConnection()){
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, category.getCategoryName());
             ps.setInt(2, category.getCategoryId());
             int rowsAffected = ps.executeUpdate();
@@ -105,7 +105,8 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public void deleteCategory(int id) {
         String sql = "DELETE FROM lib_categories WHERE category_id=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try(Connection conn = dbConnection.getConnection()){
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
@@ -124,11 +125,12 @@ public class CategoryDaoImpl implements CategoryDao {
 
     public Category getCategoryByName(String categoryName) {
         String sql = "SELECT * FROM lib_categories WHERE category_name=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try(Connection conn = dbConnection.getConnection()){
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, categoryName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Category category = getCategory();
+                Category category = context.getBean(Category.class);
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
                 return category;

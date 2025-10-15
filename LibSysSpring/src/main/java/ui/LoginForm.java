@@ -1,22 +1,26 @@
 
 package ui;
 
-import Config.AppConfig;
 import javax.swing.JOptionPane;
 import model.Admin;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 import service.AdminService;
 import serviceImpl.AdminServiceImpl;
 
- 
+@Component
 public class LoginForm extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginForm.class.getName());
 
-     
-    public LoginForm() {
+    @Autowired
+    private AdminService adminService;
 
+    @Autowired
+     private ApplicationContext context;
+
+    public LoginForm() {
         initComponents();
     }
 
@@ -111,13 +115,12 @@ public class LoginForm extends javax.swing.JFrame {
         return;
     }
 
-    AdminService adminService = new AdminServiceImpl();
     Admin loggedInAdmin = adminService.login(username, password);
 
     if(loggedInAdmin != null) {
         JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + loggedInAdmin.getUsername());
-        // Open the dashboard or main application panel
-        DashboardFrame dashboard = new DashboardFrame();
+        DashboardFrame dashboard = context.getBean(DashboardFrame.class);
+        dashboard.init(); // Manual call
         dashboard.setVisible(true);
         this.dispose(); // close login frame
     } else {
@@ -125,9 +128,8 @@ public class LoginForm extends javax.swing.JFrame {
                                       "Login Failed", JOptionPane.ERROR_MESSAGE);
     }
 
-    }//GEN-LAST:event_loginButtonActionPerformed
+    }
 
-     
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

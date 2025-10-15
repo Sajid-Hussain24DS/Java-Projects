@@ -1,40 +1,31 @@
-package daoImpl;
+package daoimpl;
 
-import Config.AppConfig;
 import dao.StudentDao;
 import model.Student;
 import database.DBConnection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.stereotype.Repository;
-@Repository
+@Component
 public class StudentDaoImpl implements StudentDao {
 
+    @Autowired
+    private DBConnection dbConnection;
 
-    private final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    @Autowired
+    private ApplicationContext context;
 
-    public Student getStudent(){
-        return context.getBean(Student.class);
-    }
-    private Connection conn;
-    public StudentDaoImpl() {
-        try {
-            conn = DBConnection.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Failed to connect to database!");
-        }
-    }
-    
+
 
     @Override
     public void addStudent(Student student) {
-        String sql = "INSERT INTO lib_students (name, age, roll_number, email, contact) VALUES (?, ?, ?, ?,?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dbConnection.getConnection()) {
+            String sql = "INSERT INTO students (name, roll_number, department) VALUES (?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, student.getName());
             ps.setInt(2, student.getAge());
             ps.setString(3, student.getRollNumber());
@@ -49,12 +40,13 @@ public class StudentDaoImpl implements StudentDao {
 
     @Override
     public Student getStudentById(int studentId) {
+        try (Connection conn = dbConnection.getConnection()) {
         String sql = "SELECT * FROM lib_students WHERE student_Id=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, studentId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                Student student = getStudent();
+                Student student =context.getBean(Student.class);
                 student.setStudentId(rs.getInt("student_Id"));
                 student.setName(rs.getString("name"));
                 student .setAge(rs.getInt("age"));
@@ -72,11 +64,12 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     public List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
+        try (Connection conn = dbConnection.getConnection()) {
         String sql = "SELECT * FROM lib_students";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Student student = getStudent();
+                Student student =context.getBean(Student.class);
                 student.setStudentId(rs.getInt("student_Id"));
                 student.setName(rs.getString("name"));
                 student .setAge(rs.getInt("age"));
@@ -93,8 +86,9 @@ public class StudentDaoImpl implements StudentDao {
 
     @Override
     public void updateStudent(Student student) {
+        try (Connection conn = dbConnection.getConnection()) {
         String sql = "UPDATE lib_students SET name=?, age=?, roll_number=?, email=?, contact=? WHERE student_Id=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+         PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, student.getName());
             ps.setInt(2, student.getAge());  
             ps.setString(3, student.getRollNumber());
@@ -110,8 +104,10 @@ public class StudentDaoImpl implements StudentDao {
 
     @Override
     public void deleteStudent(int studentId) {
+
+        try (Connection conn = dbConnection.getConnection()) {
         String sql = "DELETE FROM lib_students WHERE student_Id=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, studentId);
             ps.executeUpdate();
             System.out.println("✅ Student deleted successfully.");

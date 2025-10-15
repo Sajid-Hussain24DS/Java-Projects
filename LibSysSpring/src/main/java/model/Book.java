@@ -1,10 +1,9 @@
 package model;
 
-import org.springframework.context.annotation.Scope;
+
 import org.springframework.stereotype.Component;
 
 @Component
-@Scope("prototype")
 public class Book {
     private int bookId;
     private String title;
@@ -14,8 +13,6 @@ public class Book {
     private int categoryId; // Store category ID as int
     private int quantity;
     private String categoryName;
-    
-    
     
     public Book(int bookId, String title, String author, String publisher, String isbn, int categoryId, String categoryName, int quantity) {
     this.bookId = bookId;

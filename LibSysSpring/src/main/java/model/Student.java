@@ -1,11 +1,9 @@
 package model;
 
-import org.springframework.context.annotation.Scope;
+
 import org.springframework.stereotype.Component;
 
-
 @Component
-@Scope("prototype")
 public class Student {
      
     private int studentId;
@@ -15,7 +13,6 @@ public class Student {
     private String email;
     private String contact;
 
-    public Student(){}
     // Getters and Setters
      
     public int getStudentId() {

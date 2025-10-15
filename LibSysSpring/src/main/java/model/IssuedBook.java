@@ -1,12 +1,9 @@
 package model;
 
-import java.sql.Date;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-
+import java.sql.Date;
 @Component
-@Scope("prototype")
 public class IssuedBook {
     private int issueId;
     private int studentId;
@@ -15,7 +12,6 @@ public class IssuedBook {
     private java.util.Date dueDate;
     private java.util.Date returnDate;
     
-    public IssuedBook(){}
     // Getters and setters for all fields
     public int getIssueId() { return issueId; }
     public void setIssueId(int issueId) { this.issueId = issueId; }

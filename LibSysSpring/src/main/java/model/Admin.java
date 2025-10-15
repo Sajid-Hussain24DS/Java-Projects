@@ -1,16 +1,11 @@
 package model;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-@Component
-@Scope("prototype")
+
 public class Admin {
     private int id;
     private String username;
     private String password;
-    
-    public Admin(){}
 
     // Constructor
     public Admin(int id, String username, String password) {

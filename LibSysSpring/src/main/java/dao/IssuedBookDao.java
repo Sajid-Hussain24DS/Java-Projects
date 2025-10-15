@@ -3,6 +3,8 @@ package dao;
 import java.sql.Date;
 import java.util.List;
 import model.IssuedBook;
+import org.springframework.stereotype.Repository;
+
 
 public interface IssuedBookDao {
     void addIssue(IssuedBook issuedBook);
@@ -22,7 +24,7 @@ public interface IssuedBookDao {
     List<IssuedBook> getAllIssuedBooks();
     List<IssuedBook> getIssuedBooksByStudent(int studentId);
 
-    boolean returnBook(int studentId, int bookId, Date returnDate);
+    public boolean returnBook(int studentId, int bookId, Date returnDate);
 
-    boolean deleteIssuedBook(int sueId);
+    public boolean deleteIssuedBook(int sueId);
 }

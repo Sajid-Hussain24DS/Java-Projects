@@ -1,9 +1,11 @@
 package database;
 
+import org.springframework.stereotype.Component;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
+@Component
 public class DBConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/library_db";
     private static final String USER = "root";   
@@ -19,11 +21,11 @@ public class DBConnection {
         }
     }
 
-    public static Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    public static void closeConnection(Connection conn) {
+    public  void closeConnection(Connection conn) {
         if (conn != null) {
             try {
                 conn.close();

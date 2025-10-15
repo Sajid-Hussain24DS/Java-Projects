@@ -1,16 +1,20 @@
 package serviceImpl;
 
 import dao.BookDao;
-import daoImpl.BookDaoImpl;
+import daoimpl.BookDaoImpl;
  
 import model.Book;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import service.BookService;
 
 import java.util.List;
-
+@Service
 public class BookServiceImpl implements BookService {
 
-    private final BookDao bookDao = new BookDaoImpl();
+    @Autowired
+    private BookDao bookDao;
 
     @Override
     public void addBook(Book book) {

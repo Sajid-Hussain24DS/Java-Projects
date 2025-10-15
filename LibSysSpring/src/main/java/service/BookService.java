@@ -1,7 +1,10 @@
 package service;
 
 import model.Book;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
+
 
 public interface BookService {
     void addBook(Book book);

@@ -1,18 +1,16 @@
 package ui;
 
-import Config.AppConfig;
 import dao.BookDao;
 import dao.IssuedBookDao;
 import dao.StudentDao;
-import daoImpl.BookDaoImpl;
-import daoImpl.StudentDaoImpl;
-import daoImpl.IssuedBookDaoImpl;
+import daoimpl.BookDaoImpl;
+import daoimpl.StudentDaoImpl;
+import daoimpl.IssuedBookDaoImpl;
 import database.DBConnection;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -20,42 +18,48 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
 import model.Book;
-import model.IssuedBook;
 import model.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 
+
+@Component
 public class IssueManagmentForm extends javax.swing.JFrame {
 
 
+    @Autowired
+    private  DBConnection dbConnection;
 
+    @Autowired
+    private ApplicationContext context;
+    @Autowired
+    private IssuedBookDao issuedBookDao;
 
-    private final IssuedBookDao issuedBookDao;
-    private final BookDao bookDao;
-    private final StudentDao studentDao;
+    @Autowired
+    private BookDao bookDao;
+
+    @Autowired
+    private StudentDao studentDao;
   JScrollPane pane; //= new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
  
 
     public IssueManagmentForm() {
-        this.issuedBookDao = new IssuedBookDaoImpl();
-        this.bookDao = new BookDaoImpl();
-        this.studentDao = new StudentDaoImpl();
         initComponents();
-        initializeForm();
-        this.setSize(800, 600);
-
+    this.setSize(800, 600);
         DefaultTableModel model = new DefaultTableModel(
     new Object[][] {}, 
     new String[] { "Issue ID", "Student ID", "Student Name", "Book ID", "Book Title", "Issue Date", "Due Date", "Return Date" }
 );
 issueBookTable.setModel(model);
+    }
 
+    public void init() {
         loadIssuedBooks();
     }
 
     private void initializeForm() {
-        // Set issue and due dates
+
         java.util.Date currentDate = new java.util.Date();
         issueDateField.setText(new SimpleDateFormat("yyyy-MM-dd").format(currentDate));
         Calendar cal = Calendar.getInstance();
@@ -159,7 +163,7 @@ issueBookTable.setModel(model);
 
 DefaultTableModel model = (DefaultTableModel) issueBookTable.getModel();
 model.setRowCount(0);
-try (Connection conn = DBConnection.getConnection();
+try (Connection conn = dbConnection.getConnection();
      PreparedStatement ps = conn.prepareStatement(query);
      ResultSet rs = ps.executeQuery()) {
 
@@ -525,7 +529,7 @@ try (Connection conn = DBConnection.getConnection();
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
          this.dispose();
-        DashboardFrame dashboard = new DashboardFrame();
+        DashboardFrame dashboard =context.getBean(DashboardFrame.class);
         dashboard.setVisible(true);
     }//GEN-LAST:event_backButtonActionPerformed
 
@@ -676,7 +680,9 @@ private String getBookTitle(int bookId) {
 }
 
 
+    public void setMode(String mode) {
 
+    }
 }
 
 
