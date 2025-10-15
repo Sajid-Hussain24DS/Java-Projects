@@ -2,119 +2,111 @@ package daoimpl;
 
 import dao.CategoryDao;
 import model.Category;
-import database.DBConnection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
 
 @Component
 public class CategoryDaoImpl implements CategoryDao {
 
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private DBConnection dbConnection;
-
-    @Autowired
-    private ApplicationContext context;
-
-
+    public CategoryDaoImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
-    public void addCategory(Category category) {
-        String sql = "INSERT INTO lib_categories (category_name) VALUES (?)";
-        try(Connection conn = dbConnection.getConnection()){
-         PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, category.getCategoryName());
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("✅ Category added successfully.");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error adding category: " + e.getMessage());
-            e.printStackTrace();
+    public int addCategory(Category category) {
+        if (category == null || category.getCategoryName() == null || category.getCategoryName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Category name cannot be null or empty");
         }
+
+        String sql = "INSERT INTO lib_categories (category_name) VALUES (?)";
+        return jdbcTemplate.update(sql, category.getCategoryName().trim());
     }
 
     @Override
     public Category getCategoryById(int id) {
-        String sql = "SELECT * FROM lib_categories WHERE category_id=?";
-        try(Connection conn = dbConnection.getConnection()){
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Category category = context.getBean(Category.class);
+        String sql = "SELECT * FROM lib_categories WHERE category_id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+                Category category = new Category();
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
                 return category;
-            }
-        } catch (SQLException e) {
-            System.err.println("Error getting category by ID: " + e.getMessage());
-            e.printStackTrace();
+            }, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
-        return null;
     }
+
     @Override
     public List<Category> getAllCategories() {
-        List<Category> categories = new ArrayList<>();
         String sql = "SELECT * FROM lib_categories";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));
+    }
 
-        try (Connection conn = dbConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+    @Override
+    public boolean updateCategory(Category category) {
+        if (category == null || category.getCategoryId() <= 0) {
+            throw new IllegalArgumentException("Invalid category data");
+        }
 
-            while (rs.next()) {
-                // Create Category using Spring context
-                Category category = context.getBean(Category.class);
+        String sql = "UPDATE lib_categories SET category_name = ? WHERE category_id = ?";
+        int rowsAffected = jdbcTemplate.update(sql, category.getCategoryName(), category.getCategoryId());
+
+        if (rowsAffected > 0) {
+            System.out.println("Category updated successfully.");
+            return true;
+        } else {
+            System.out.println("Category not found with ID: " + category.getCategoryId());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteCategory(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid category ID");
+        }
+
+        String sql = "DELETE FROM lib_categories WHERE category_id = ?";
+        int rowsAffected = jdbcTemplate.update(sql, id);
+
+        if (rowsAffected > 0) {
+            System.out.println("Category deleted successfully.");
+            return true;
+        } else {
+            System.out.println("Category not found with ID: " + id);
+            return false;
+        }
+    }
+
+
+    public Category getCategoryByName(String categoryName) {
+        if (categoryName == null || categoryName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category name cannot be null or empty");
+        }
+
+        String sql = "SELECT * FROM lib_categories WHERE category_name = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+                Category category = new Category();
                 category.setCategoryId(rs.getInt("category_id"));
                 category.setCategoryName(rs.getString("category_name"));
-                categories.add(category);
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Error getting all categories: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return categories;
-    }
-
-
-    @Override
-    public void updateCategory(Category category) {
-        String sql = "UPDATE lib_categories SET category_name=? WHERE category_id=?";
-        try(Connection conn = dbConnection.getConnection()){
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, category.getCategoryName());
-            ps.setInt(2, category.getCategoryId());
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("✅ Category updated successfully.");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error updating category: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void deleteCategory(int id) {
-        String sql = "DELETE FROM lib_categories WHERE category_id=?";
-        try(Connection conn = dbConnection.getConnection()){
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, id);
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("✅ Category deleted successfully.");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error deleting category: " + e.getMessage());
-            e.printStackTrace();
+                return category;
+            }, categoryName.trim());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 
@@ -123,22 +115,5 @@ public class CategoryDaoImpl implements CategoryDao {
         System.out.println("⬅ Going back to previous menu...");
     }
 
-    public Category getCategoryByName(String categoryName) {
-        String sql = "SELECT * FROM lib_categories WHERE category_name=?";
-        try(Connection conn = dbConnection.getConnection()){
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, categoryName);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Category category = context.getBean(Category.class);
-                category.setCategoryId(rs.getInt("category_id"));
-                category.setCategoryName(rs.getString("category_name"));
-                return category;
-            }
-        } catch (SQLException e) {
-            System.err.println("Error getting category by name: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 }

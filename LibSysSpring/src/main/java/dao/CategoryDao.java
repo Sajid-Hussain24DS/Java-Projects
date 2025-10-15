@@ -1,16 +1,14 @@
 package dao;
 
 import model.Category;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 public interface CategoryDao {
-    void addCategory(Category category);
+    int addCategory(Category category);        // int return type
     Category getCategoryById(int id);
     List<Category> getAllCategories();
-    void updateCategory(Category category);
-    void deleteCategory(int id);
-
+    boolean updateCategory(Category category); // boolean return type
+    boolean deleteCategory(int id);           // boolean return type
+    Category getCategoryByName(String categoryName);
     void back();
 }
