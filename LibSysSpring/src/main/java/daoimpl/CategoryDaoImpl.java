@@ -15,6 +15,7 @@ import java.util.Optional;
 @Component
 public class CategoryDaoImpl implements CategoryDao {
 
+
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -25,23 +26,20 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public int addCategory(Category category) {
         if (category == null || category.getCategoryName() == null || category.getCategoryName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Category name cannot be null or empty");
-        }
-
+            throw new IllegalArgumentException("Category name cannot be null or empty");}
         String sql = "INSERT INTO lib_categories (category_name) VALUES (?)";
-        return jdbcTemplate.update(sql, category.getCategoryName().trim());
-    }
+        return jdbcTemplate.update(sql, category.getCategoryName().trim());}
+
 
     @Override
     public Category getCategoryById(int id) {
         String sql = "SELECT * FROM lib_categories WHERE category_id = ?";
-
         try {
             return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-                Category category = new Category();
-                category.setCategoryId(rs.getInt("category_id"));
-                category.setCategoryName(rs.getString("category_name"));
-                return category;
+                Category c = new Category();
+                c.setCategoryId(rs.getInt("category_id"));
+                c.setCategoryName(rs.getString("category_name"));
+                return c;
             }, id);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -51,18 +49,15 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public List<Category> getAllCategories() {
         String sql = "SELECT * FROM lib_categories";
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));
-    }
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Category.class));}
 
     @Override
     public boolean updateCategory(Category category) {
         if (category == null || category.getCategoryId() <= 0) {
-            throw new IllegalArgumentException("Invalid category data");
-        }
+            throw new IllegalArgumentException("Invalid category data");}
 
         String sql = "UPDATE lib_categories SET category_name = ? WHERE category_id = ?";
         int rowsAffected = jdbcTemplate.update(sql, category.getCategoryName(), category.getCategoryId());
-
         if (rowsAffected > 0) {
             System.out.println("Category updated successfully.");
             return true;
@@ -75,12 +70,9 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public boolean deleteCategory(int id) {
         if (id <= 0) {
-            throw new IllegalArgumentException("Invalid category ID");
-        }
-
+            throw new IllegalArgumentException("Invalid category ID");}
         String sql = "DELETE FROM lib_categories WHERE category_id = ?";
         int rowsAffected = jdbcTemplate.update(sql, id);
-
         if (rowsAffected > 0) {
             System.out.println("Category deleted successfully.");
             return true;
@@ -93,11 +85,8 @@ public class CategoryDaoImpl implements CategoryDao {
 
     public Category getCategoryByName(String categoryName) {
         if (categoryName == null || categoryName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Category name cannot be null or empty");
-        }
-
+            throw new IllegalArgumentException("Category name cannot be null or empty");}
         String sql = "SELECT * FROM lib_categories WHERE category_name = ?";
-
         try {
             return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
                 Category category = new Category();

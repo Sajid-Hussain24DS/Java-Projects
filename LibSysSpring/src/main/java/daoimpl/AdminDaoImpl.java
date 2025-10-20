@@ -5,6 +5,8 @@ import model.Admin;
 import database.DBConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -14,31 +16,31 @@ import java.sql.SQLException;
 
 @Component
 public class AdminDaoImpl implements AdminDao {
-
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private DBConnection dbConnection;
-    @Override
-    public Admin login(String username, String password) {
-        try(Connection conn = dbConnection.getConnection()){
-        String sql = "SELECT * FROM lib_admins WHERE username=? AND password=?";
-        PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, username);
-            ps.setString(2, password);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new Admin(
-                        rs.getInt("admin_id"),
-                        rs.getString("username"),
-                        rs.getString("password")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null; // login failed
+    public AdminDaoImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
+    // 🔐 Login Method
+    @Override
+    public Admin login(String username, String password) {
+        String sql = "SELECT * FROM lib_admins WHERE username = ? AND password = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{username, password}, (rs, rowNum) ->
+                    new Admin(
+                            rs.getInt("admin_id"),
+                            rs.getString("username"),
+                            rs.getString("password")
+                    )
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null; // login failed
+        }
+    }
+
+    // ⬅ Back Method
     @Override
     public void back() {
         System.out.println("⬅ Going back to previous menu...");

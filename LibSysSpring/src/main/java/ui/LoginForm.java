@@ -21,7 +21,10 @@ public class LoginForm extends javax.swing.JFrame {
      private ApplicationContext context;
 
     public LoginForm() {
+
         initComponents();
+        setLocationRelativeTo(null);
+
     }
 
     

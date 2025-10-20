@@ -10,13 +10,25 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import database.DBConnection;
+import model.Category;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BookDaoImpl implements BookDao {
 
+    @Autowired
+    private SessionFactory sessionFactory;
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private BookDaoImpl (JdbcTemplate jdbcTemplate){
+        this.jdbcTemplate = jdbcTemplate;
+    }
     @Autowired
     private DBConnection dbConnection;
 
@@ -25,95 +37,67 @@ public class BookDaoImpl implements BookDao {
 
 
     @Override
-    public void addBook(Book book) {
-        String sql = "INSERT INTO lib_books(title, author, publisher, isbn, category_id, quantity) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = dbConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, book.getTitle());
-            ps.setString(2, book.getAuthor());
-            ps.setString(3, book.getPublisher());
-            ps.setString(4, book.getIsbn());
-            ps.setInt(5, book.getCategoryId());
-            ps.setInt(6, book.getQuantity());
+    public int addBook(Book book) {
+        String sql = "INSERT INTO lib_books (title, author, publisher, isbn, category_id, quantity) VALUES (?, ?, ?, ?, ?, ?)";
+        return jdbcTemplate.update(
+                sql,
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublisher(),
+                book.getIsbn(),
+                book.getCategoryId(),
+                book.getQuantity()
+        );}
 
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
-    public void updateBook(Book book) {
+    public int updateBook(Book book) {
         String sql = "UPDATE lib_books SET title=?, author=?, publisher=?, isbn=?, category_id=?, quantity=? WHERE book_id=?";
-        try (Connection conn = dbConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, book.getTitle());
-            ps.setString(2, book.getAuthor());
-            ps.setString(3, book.getPublisher());
-            ps.setString(4, book.getIsbn());
-            ps.setInt(5, book.getCategoryId());
-            ps.setInt(6, book.getQuantity());
-            ps.setInt(7, book.getBookId());
-
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+        return jdbcTemplate.update(
+                sql,
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublisher(),
+                book.getIsbn(),
+                book.getCategoryId(),
+                book.getQuantity(),
+                book.getBookId()
+        );}
 
     @Override
-    public void deleteBook(int bookId) {
+    public int deleteBook(int bookId) {
         String sql = "DELETE FROM lib_books WHERE book_id=?";
-        try (Connection conn = dbConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, bookId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+         return jdbcTemplate.update(
+                 sql,
+                 bookId
+         );
     }
 
     @Override
     public Book getBookById(int bookId) {
-        String sql = "SELECT * FROM lib_books WHERE book_id=?";
-        try (Connection conn = dbConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, bookId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Book book = context.getBean(Book.class);
-                    book.setBookId(rs.getInt("book_id"));
-                    book.setTitle(rs.getString("title"));
-                    book.setAuthor(rs.getString("author"));
-                    book.setPublisher(rs.getString("publisher"));
-                    book.setIsbn(rs.getString("isbn"));
-                    book.setCategoryId(rs.getInt("category_id"));
-                    book.setQuantity(rs.getInt("quantity"));
-                    return book;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        String sql = "SELECT * FROM lib_books WHERE book_id = ?";
+        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+            Book book =context.getBean(Book.class);
+            book.setBookId(rs.getInt("book_id"));
+            book.setTitle(rs.getString("title"));
+            book.setAuthor(rs.getString("author"));
+            book.setPublisher(rs.getString("publisher"));
+            book.setIsbn(rs.getString("isbn"));
+            book.setCategoryId(rs.getInt("category_id"));
+            book.setQuantity(rs.getInt("quantity"));
+            return book;
+        }, bookId);
     }
 
-  @Override
-public List<Book> getAllBooks() {
-    List<Book> books = new ArrayList<>();
-    String sql = "SELECT b.book_id, b.title, b.author, b.publisher, b.isbn, b.quantity, " +
-                 "c.category_id, c.category_name " +
-                 "FROM lib_books b " +
-                 "INNER JOIN lib_categories c ON b.category_id = c.category_id";
 
-    try (Connection conn = dbConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+    @Override
+    public List<Book> getAllBooks() {
+        String sql = "SELECT b.book_id, b.title, b.author, b.publisher, b.isbn, b.quantity, " +
+                "c.category_id, c.category_name " +
+                "FROM lib_books b " +
+                "INNER JOIN lib_categories c ON b.category_id = c.category_id";
 
-        while (rs.next()) {
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Book book = context.getBean(Book.class);
             book.setBookId(rs.getInt("book_id"));
             book.setTitle(rs.getString("title"));
@@ -122,75 +106,37 @@ public List<Book> getAllBooks() {
             book.setIsbn(rs.getString("isbn"));
             book.setQuantity(rs.getInt("quantity"));
             book.setCategoryId(rs.getInt("category_id"));
-            book.setCategoryName(rs.getString("category_name")); // ✅ new field
-            books.add(book);
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return books;
-}
+            book.setCategoryName(rs.getString("category_name"));
+            return book;});}
+
+    @Override
+    public List<Book> getBooksByCategory(int categoryId) {
+        String sql = "SELECT * FROM lib_books WHERE category_id = ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Book book = new Book();
+            book.setBookId(rs.getInt("book_id"));
+            book.setTitle(rs.getString("title"));
+            book.setAuthor(rs.getString("author"));
+            book.setPublisher(rs.getString("publisher"));
+            book.setIsbn(rs.getString("isbn"));
+            book.setCategoryId(rs.getInt("category_id"));
+            book.setQuantity(rs.getInt("quantity"));
+            return book;
+        }, categoryId);}
 
 
     @Override
-public List<Book> getBooksByCategory(int categoryId) {
-    List<Book> books = new ArrayList<>();
-    String sql = "SELECT * FROM lib_books WHERE category_id = ?";
-    
-    try (Connection conn = dbConnection.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-        ps.setInt(1, categoryId);
-        
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Book book = context.getBean(Book.class);
-                book.setBookId(rs.getInt("book_id"));
-                book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
-                book.setPublisher(rs.getString("publisher"));
-                book.setIsbn(rs.getString("isbn"));
-                book.setCategoryId(rs.getInt("category_id"));
-                book.setQuantity(rs.getInt("quantity"));
-                books.add(book);
-            }
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
+    public void decreaseBookQuantity(int bookId) {
+        String sql = "UPDATE lib_books SET quantity = quantity - 1 WHERE book_id = ? AND quantity > 0";
+        jdbcTemplate.update(sql, bookId);
     }
-    return books;
-}
 
-@Override
-public void decreaseBookQuantity(int bookId) {
-    String sql = "UPDATE lib_books SET quantity = quantity - 1 WHERE book_id = ? AND quantity > 0";
-    
-    try (Connection conn = dbConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-        
-        stmt.setInt(1, bookId);
-        stmt.executeUpdate();
-        
-    } catch (SQLException e) {
-        e.printStackTrace();
-
-    }
-}
 
     @Override
     public boolean increaseBookQuantity(int bookId) {
-         String sql = "UPDATE lib_books SET quantity = quantity + 1 WHERE book_id = ?";
-    
-    try (Connection conn = dbConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-        
-        stmt.setInt(1, bookId);
-        int rowsAffected = stmt.executeUpdate();
+        String sql = "UPDATE lib_books SET quantity = quantity + 1 WHERE book_id = ?";
+        int rowsAffected = jdbcTemplate.update(sql, bookId);
         return rowsAffected > 0;
-        
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
-    }
     }
 }

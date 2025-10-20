@@ -1,15 +1,26 @@
 package model;
 
+import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 @Component
+@Entity
+@Table(name = "lib_issued_books")
 public class IssuedBook {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "issue_id")
     private int issueId;
+    @Column(name = "student_id")
     private int studentId;
+    @Column(name = "book_id")
     private int bookId;
+    @Column(name = "issue_date")
     private java.util.Date issueDate;
+    @Column(name = "due_date")
     private java.util.Date dueDate;
+    @Column(name = "return_date")
     private java.util.Date returnDate;
     
     // Getters and setters for all fields

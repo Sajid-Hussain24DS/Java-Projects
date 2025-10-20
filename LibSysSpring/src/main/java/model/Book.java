@@ -1,18 +1,31 @@
 package model;
 
 
+import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
 @Component
+@Entity
+@Table(name = "lib_books")
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "book_id")
     private int bookId;
-    private String title;
-    private String author;
-    private String publisher;
-    private String isbn;
-    private int categoryId; // Store category ID as int
-    private int quantity;
-    private String categoryName;
+
+    @Column(name = "title") private String title;
+
+    @Column(name = "author") private String author;
+
+    @Column(name = "publisher") private String publisher;
+
+    @Column(name = "isbn") private String isbn;
+
+    @Column(name = "category_id") private int categoryId; // Store category ID as int
+
+    @Column(name = "quantity") private int quantity;
+
+    @Column(name = "categoryName") private String categoryName;
     
     public Book(int bookId, String title, String author, String publisher, String isbn, int categoryId, String categoryName, int quantity) {
     this.bookId = bookId;
@@ -50,7 +63,6 @@ public class Book {
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    // ✅ Add this method so no UnsupportedOperationException comes
     public int getId() {
         return this.bookId;
     }

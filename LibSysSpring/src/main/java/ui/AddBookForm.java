@@ -33,6 +33,7 @@ public class AddBookForm extends javax.swing.JFrame {
 
     public AddBookForm() {
        initComponents();
+        setLocationRelativeTo(null);
     }
     public void init() {
         loadBooksTable();

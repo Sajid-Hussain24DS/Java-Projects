@@ -1,16 +1,26 @@
 package model;
 
 
+import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
 @Component
+@Entity
+@Table(name = "lib_students")
 public class Student {
-     
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+     @Column(name = "student_id")
     private int studentId;
+    @Column(name = "name")
     private String name;
+    @Column(name = "age")
     private int age;
+    @Column(name = "roll_number")
     private String rollNumber;
+    @Column(name = "email")
     private String email;
+    @Column(name = "contact")
     private String contact;
 
     // Getters and Setters

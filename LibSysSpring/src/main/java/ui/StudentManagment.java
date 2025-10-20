@@ -3,6 +3,7 @@ package ui;
 import daoimpl.StudentDaoImpl;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 import model.Student;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,35 +27,47 @@ public class StudentManagment extends javax.swing.JFrame {
     public StudentManagment() {
         initComponents();
         setupFormMode();
+        setLocationRelativeTo(null);
 
     }
 
     public void init() {
+        setupStudentTable();
         loadStudentsIntoTable();
     }
- private void loadStudentsIntoTable() {
+
+    private void setupStudentTable() {
+        DefaultTableModel model = new DefaultTableModel();
+        model.setColumnIdentifiers(new String[]{
+                "ID", "Name", "Age", "Roll No", "Email", "Contact"
+        });
+        studentTable.setModel(model);
+    }
+
+    private void loadStudentsIntoTable() {
         try {
             List<Student> students = studentDao.getAllStudents();
 
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel();
-            model.setColumnIdentifiers(new String[]{"ID", "Name", "Age", "Roll No", "Email", "Contact"});
+            DefaultTableModel model = (DefaultTableModel) studentTable.getModel();
+            model.setRowCount(0);
 
             for (Student s : students) {
                 model.addRow(new Object[]{
-                    s.getStudentId(),
-                    s.getName(),
-                    s.getAge(),
-                    s.getRollNumber(),
-                    s.getEmail(),
-                    s.getContact()
+                        s.getStudentId(),
+                        s.getName(),
+                        s.getAge(),
+                        s.getRollNumber(),
+                        s.getEmail(),
+                        s.getContact()
                 });
             }
-            studentTable.setModel(model);
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading students: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 
     // Form reset
     private void clearForm() {

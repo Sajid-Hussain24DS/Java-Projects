@@ -12,7 +12,7 @@ public class Main {
                 new AnnotationConfigApplicationContext(AppConfig.class);
         JdbcTemplate jdbcTemplate = context.getBean(JdbcTemplate.class);
 
-        System.out.println("🚀 Spring Started Successfully!");
+        System.out.println("Spring Started Successfully!");
 
         LoginForm loginForm = context.getBean(LoginForm.class);
         loginForm.setVisible(true);

@@ -5,12 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70d3a3d3-f874-4381-a48f-5e86cbe7a57c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/Config/DataBaseConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Config/AppConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Config/AppConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Config/DataBaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/database/DataBaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dao/BookDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dao/BookDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/daoimpl/AdminDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/daoimpl/AdminDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/daoimpl/BookDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/daoimpl/BookDaoImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/daoimpl/CategoryDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/daoimpl/CategoryDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/daoimpl/IssuedBookDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/daoimpl/IssuedBookDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/daoimpl/StudentDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/daoimpl/StudentDaoImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/main/main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/main/main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/Admin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Admin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/Book.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Book.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/IssuedBook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/IssuedBook.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/model/Student.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/model/Student.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/serviceImpl/BookServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/serviceImpl/BookServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ui/AddBookForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ui/AddBookForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ui/IssueManagmentForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ui/IssueManagmentForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ui/LoginForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ui/LoginForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ui/StudentManagment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ui/StudentManagment.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,6 +78,11 @@
     &quot;last_opened_file_path&quot;: &quot;F:/Java_Projects/LibSysSpring&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="database" />
+    </key>
+  </component>
   <component name="RunManager" selected="Application.Main">
     <configuration name="LoginForm" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="ui.LoginForm" />

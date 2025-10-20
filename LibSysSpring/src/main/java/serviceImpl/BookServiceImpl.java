@@ -48,7 +48,7 @@ public class BookServiceImpl implements BookService {
         System.out.println("Back to Dashboard from Books...");
     }
 
-    // Remove the String version completely if you are using category IDs
+
 
     @Override
     public List<Book> getBooksByCategory(int categoryId) {

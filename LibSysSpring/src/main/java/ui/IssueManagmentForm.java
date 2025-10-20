@@ -46,6 +46,7 @@ public class IssueManagmentForm extends javax.swing.JFrame {
 
     public IssueManagmentForm() {
         initComponents();
+        setLocationRelativeTo(null);
     this.setSize(800, 600);
         DefaultTableModel model = new DefaultTableModel(
     new Object[][] {}, 
